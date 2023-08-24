@@ -1,5 +1,6 @@
 package com.sergey.socialmediaapi.domain.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -27,6 +28,15 @@ public class Post {
 
     private String text;
 
+    @Lob
+    @Basic(fetch = FetchType.LAZY)
+    @JsonProperty("post_image")
+    private byte[] postImage;
+    @PrePersist
+    protected void onCreate() {
+        creationDate = LocalDateTime.now();
+    }
+    @JsonProperty("creation_date")
     private LocalDateTime creationDate;
 
 }

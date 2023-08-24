@@ -29,7 +29,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests()
                 .requestMatchers(
                         "/api/auth",
-                        "/api/register"
+                        "/api/register",
+                        "/error"
                         )
                 .permitAll()
                 .anyRequest()
