@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.*;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -13,11 +14,11 @@ import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
-@Getter
-@Setter
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@Slf4j
 @Entity
 @Table(name = "users")
 public class User implements UserDetails {
@@ -48,8 +49,14 @@ public class User implements UserDetails {
         return List.of(new SimpleGrantedAuthority(role.name()));
     }
 
+    @PostPersist
+    public void logNewUser() {
+        log.info(uuid + " :new user UUID");
+    }
+
     @Override
     public String getPassword() {
+
         return password;
     }
 
