@@ -52,6 +52,7 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "requested user" + id + " doesn't exist"));
     }
 
+
     @Override
     public void deleteFriend(UUID id, UserDetails userDetails) {
         User requestingUser = getRequestingUserFromRepoByUserDetails(userDetails);
@@ -60,14 +61,20 @@ public class UserServiceImpl implements UserService {
         log.info("delete friend - UserRelationId: " + userRelationId);
         UserRelation userRelation = getRelationship(userRelationId);
         if (userRelation.getRelationState().equals(RelationState.FRIENDS)) {
-            userRelationRepository.delete(userRelation);
-            log.info("User deleted: " + userRelationId);
+            if (userRelation.getRelationId().getRelatingUser().equals(requestingUser)) {
+                userRelation.setRelationState(RelationState.SUBSCRIBE_SECOND_FIRST);
+            } else {
+                userRelation.setRelationState(RelationState.SUBSCRIBE_FIRST_SECOND);
+            }
+            userRelationRepository.save(userRelation);
+            log.info("Friend deleted, user relation: ");
         } else {
             log.info("You don't have this friend");
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "you don't have this friend");
         }
 
     }
+
 
     private UserRelation getRelationship(UserRelationId userRelationId) {
         Optional<UserRelation> userRelationById = userRelationRepository.findById(userRelationId);
@@ -85,7 +92,7 @@ public class UserServiceImpl implements UserService {
         }
 
     }
-
+    //    todo add ability to decline
     @Override
     public void acceptFriend(UUID id, UserDetails userDetails) {
         User requestingUser = getRequestingUserFromRepoByUserDetails(userDetails);
