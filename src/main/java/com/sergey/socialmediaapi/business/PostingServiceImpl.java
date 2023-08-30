@@ -30,7 +30,7 @@ public class PostingServiceImpl implements PostingService {
         Post newPost = PostingMapper.postRequestToPost(newPostRequest);
         User postingUser = userRepository
                 .findUserByEmail(userDetails.getUsername())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST));
         newPost.setCreator(postingUser);
         Post savedPost = postRepository.save(newPost);
         return PostingMapper.postToNewPostId(savedPost);
@@ -52,12 +52,12 @@ public class PostingServiceImpl implements PostingService {
             try {
                 updatedPost.setPostImage(ImageUtil.compressImage(updatePostRequest.getPhotoData().getBytes()));
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
             }
             updatedPost.setHeader(updatePostRequest.getHeader());
             postRepository.save(updatedPost);
         } else {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+            throw new ResponseStatusException(HttpStatus.METHOD_NOT_ALLOWED);
         }
     }
 
@@ -66,13 +66,13 @@ public class PostingServiceImpl implements PostingService {
         if (isAllowedToChangePost(userDetails, id)) {
             postRepository.deleteById(id);
         } else {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+            throw new ResponseStatusException(HttpStatus.METHOD_NOT_ALLOWED);
         }
     }
 
     private boolean isAllowedToChangePost(UserDetails userDetails, UUID id) {
         return userDetails.getUsername()
-                .equals(postRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "This user is not in db"))
+                .equals(postRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "This post is not in db"))
                         .getCreator()
                         .getUsername()
                 );

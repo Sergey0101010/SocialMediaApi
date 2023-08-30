@@ -32,7 +32,7 @@ public class ActivityFeedServiceImpl implements ActivityFeedService {
         Sort postSort = newToOld ? Sort.by("creationDate").descending() : Sort.by("creationDate").ascending();
         Pageable postPage = PageRequest.of(page, size, postSort);
         User userByEmail = userRepository.findUserByEmail(userDetails.getUsername())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST));
         List<User> subscribedList = getUserList(userByEmail);
 
         return postRepository.findPostsByCreatorIn(subscribedList, postPage)

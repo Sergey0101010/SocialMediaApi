@@ -40,7 +40,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                     .build();
         } else {
             log.info("USER ALREADY EXISTS");
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+            throw new ResponseStatusException(HttpStatus.CONFLICT);
         }
     }
 
@@ -57,7 +57,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         var user = userRepository.findUserByEmail(request.getEmail())
                 .orElseThrow(() -> {
                     log.info("NO Such user for auth");
-                    return new ResponseStatusException(HttpStatus.BAD_REQUEST);
+                    return new ResponseStatusException(HttpStatus.CONFLICT);
                 }
                 );
         var jwtToken = jwtService.generateToken(user);
